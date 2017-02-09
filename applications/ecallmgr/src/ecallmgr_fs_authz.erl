@@ -93,7 +93,7 @@ maybe_loopback_channel(Props, CallId, Node) ->
         'false' -> maybe_channel_recovering(Props, CallId, Node);
         'true' ->
             lager:debug("allowing loopback channel"),
-            'true'
+            allow_call(Props, CallId, Node)
     end.
 
 -spec maybe_channel_recovering(kz_proplist(), ne_binary(), atom()) -> boolean().
