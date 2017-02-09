@@ -83,8 +83,17 @@ maybe_authorize_channel(Props, Node) ->
                                         ),
                     'true';
                 _Hunt ->
-                    maybe_channel_recovering(Props, CallId, Node)
+                    maybe_loopback_channel(Props, CallId, Node)
             end
+    end.
+
+-spec maybe_loopback_channel(kz_proplist(), ne_binary(), atom()) -> boolean().
+maybe_loopback_channel(Props, CallId, Node) ->
+    case kzd_freeswitch:is_loopback(Props) of
+        'false' -> maybe_channel_recovering(Props, CallId, Node);
+        'true' ->
+            lager:debug("allowing loopback channel"),
+            'true'
     end.
 
 -spec maybe_channel_recovering(kz_proplist(), ne_binary(), atom()) -> boolean().
