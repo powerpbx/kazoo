@@ -319,10 +319,8 @@ notify_initial_call(AccountJObj) ->
 
 -spec maybe_test_for_low_balance(ne_binary(), kz_account:doc()) -> 'ok'.
 maybe_test_for_low_balance(AccountId, AccountJObj) ->
-    case ?SHOULD_CRAWL_FOR_LOW_BALANCE of
-        'false' -> 'ok';
-        'true' -> test_for_low_balance(AccountId, AccountJObj)
-    end.
+    ?SHOULD_CRAWL_FOR_LOW_BALANCE
+        andalso test_for_low_balance(AccountId, AccountJObj).
 
 -spec test_for_low_balance(ne_binary(), kz_account:doc()) -> 'ok'.
 test_for_low_balance(AccountId, AccountJObj) ->
@@ -360,7 +358,7 @@ maybe_topup_account(AccountJObj, CurrentBalance) ->
             lager:error("topup failed for ~s: ~p", [AccountId, _Error])
     end.
 
--spec maybe_reset_low_balance_sent(kz_account:doc()) -> 'ok' | {'error', any()}.
+-spec maybe_reset_low_balance_sent(kz_account:doc()) -> 'ok'.
 maybe_reset_low_balance_sent(AccountJObj) ->
     case kz_account:low_balance_sent(AccountJObj)
         orelse kz_account:low_balance_tstamp(AccountJObj) =/= 'undefined'
@@ -369,7 +367,7 @@ maybe_reset_low_balance_sent(AccountJObj) ->
         'false' -> 'ok'
     end.
 
--spec reset_low_balance_sent(kz_account:doc()) ->  'ok' | {'error', any()}.
+-spec reset_low_balance_sent(kz_account:doc()) ->  'ok'.
 reset_low_balance_sent(AccountJObj0) ->
     lager:debug("resetting low balance sent"),
     AccountJObj1 = kz_account:reset_low_balance_sent(AccountJObj0),
@@ -417,11 +415,4 @@ notify_of_low_balance(AccountJObj, CurrentBalance) ->
     lager:debug("sending low balance alert for account ~s with balance ~w"
                ,[AccountId, CurrentBalance]),
     'ok' = kz_notify:low_balance(AccountId, CurrentBalance),
-    update_account_low_balance_sent(AccountJObj).
-
--spec update_account_low_balance_sent(kz_account:doc()) -> 'ok'.
-update_account_low_balance_sent(AccountJObj0) ->
-    AccountJObj1 = kz_account:set_low_balance_sent(AccountJObj0),
-    AccountJObj2 = kz_account:set_low_balance_tstamp(AccountJObj1),
-    _ = kz_util:account_update(AccountJObj2),
-    'ok'.
+    reset_low_balance_sent(AccountJObj).
