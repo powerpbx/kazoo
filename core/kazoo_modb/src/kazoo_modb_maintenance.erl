@@ -183,12 +183,10 @@ fix_rollup(Account) ->
     {Year, Month, _} = erlang:date(),
     fix_rollup(Account, Year, Month).
 
--spec fix_rollup(ne_binary(), ne_binary(), ne_binary()) -> 'ok'.
+-spec fix_rollup(ne_binary(), kz_year(), kz_month()) -> 'ok'.
 fix_rollup(Account, Year, Month) ->
     AccountId = kz_util:format_account_id(Account, 'raw'),
-    Y = kz_util:to_integer(Year),
-    M = kz_util:to_integer(Month),
-    {PYear, PMonth} =  kazoo_modb_util:prev_year_month(Y, M),
+    {PYear, PMonth} =  kazoo_modb_util:prev_year_month(Year, Month),
     Balance = wht_util:previous_balance(AccountId
                                        ,kz_util:to_binary(PYear)
                                        ,kz_util:pad_month(PMonth)
