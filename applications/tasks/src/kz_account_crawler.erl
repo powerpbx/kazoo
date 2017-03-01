@@ -332,7 +332,7 @@ test_for_low_balance(AccountId, AccountJObj) ->
                              timer:sleep(5000),
                              wht_util:current_balance(AccountId);
                          Balance -> Balance
-                      end,
+                     end,
     mayby_notify_for_low_balance(AccountJObj, CurrentBalance),
     maybe_topup_account(AccountJObj, CurrentBalance).
 
