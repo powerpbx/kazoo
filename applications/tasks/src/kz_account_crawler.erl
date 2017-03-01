@@ -326,7 +326,13 @@ maybe_test_for_low_balance(AccountId, AccountJObj) ->
 
 -spec test_for_low_balance(ne_binary(), kz_account:doc()) -> 'ok'.
 test_for_low_balance(AccountId, AccountJObj) ->
-    CurrentBalance = wht_util:current_balance(AccountId),
+    CurrentBalance = case wht_util:current_balance(AccountId) of
+                         Balance when Balance == 0 ->
+                             kazoo_modb_maintenance:fix_rollup(AccountId),
+                             timer:sleep(5000),
+                             wht_util:current_balance(AccountId);
+                         Balance -> Balance
+                      end,
     mayby_notify_for_low_balance(AccountJObj, CurrentBalance),
     maybe_topup_account(AccountJObj, CurrentBalance).
 
