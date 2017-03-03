@@ -209,17 +209,13 @@ send_route_response(Flow, JObj, Call) ->
              ]),
     ServerId = kz_api:server_id(JObj),
     Publisher = fun(P) -> kapi_route:publish_resp(ServerId, P) end,
-    case kz_amqp_worker:call(Resp
-                            ,Publisher
-                            ,fun kapi_route:win_v/1
-                            ,?ROUTE_WIN_TIMEOUT
-                            )
-    of
+    Timeout = ?ROUTE_WIN_TIMEOUT,
+    case kz_amqp_worker:call(Resp, Publisher, fun kapi_route:win_v/1, Timeout) of
         {'ok', RouteWin} ->
             lager:info("callflow has received a route win, taking control of the call"),
             cf_route_win:execute_callflow(RouteWin, kapps_call:from_route_win(RouteWin, Call));
         {'error', _E} ->
-            lager:info("callflow didn't received a route win, exiting : ~p", [_E])
+            lager:info("callflow didn't received a route win, exiting: ~p", [_E])
     end.
 
 -spec get_transfer_media(kz_json:object(), kz_json:object()) -> api_binary().

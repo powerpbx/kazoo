@@ -13,18 +13,15 @@
 
 -include("callflow.hrl").
 
--define(JSON(L), kz_json:from_list(L)).
-
 -define(DEFAULT_SERVICES
-       ,?JSON([{<<"audio">>, ?JSON([{<<"enabled">>, 'true'}])}
-              ,{<<"video">>,?JSON([{<<"enabled">>, 'true'}])}
-              ,{<<"sms">>,  ?JSON([{<<"enabled">>, 'true'}])}
-              ]
-             )
-       ).
+       ,kz_json:from_list_recursive(
+          [{<<"audio">>, [{<<"enabled">>, 'true'}]}
+          ,{<<"video">>, [{<<"enabled">>, 'true'}]}
+          ,{<<"sms">>, [{<<"enabled">>, 'true'}]}
+          ])).
 
 -spec execute_callflow(kz_json:object(), kapps_call:call()) ->
-                              'ok' | {'ok', pid()}.
+                              'ok' | kapps_call:call().
 execute_callflow(JObj, Call) ->
     case should_restrict_call(Call) of
         'true' ->
