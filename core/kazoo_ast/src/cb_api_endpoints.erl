@@ -124,9 +124,10 @@ method_as_action(?HTTP_DELETE) -> <<"Remove">>;
 method_as_action(?HTTP_PATCH) -> <<"Patch">>.
 
 ref_doc_header(BaseName) ->
+    CleanedUpName = smash_snake(BaseName),
     [[maybe_add_schema(BaseName)]
-    ,["#### About ", kz_binary:ucfirst(BaseName), "\n\n"]
-    ,["### ", smash_snake(BaseName), "\n\n"]
+    ,["#### About ", CleanedUpName, "\n\n"]
+    ,["### ", CleanedUpName, "\n\n"]
     ].
 
 %% user_auth -> User Auth
