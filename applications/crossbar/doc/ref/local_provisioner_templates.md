@@ -1,6 +1,6 @@
-### Local_provisioner_templates
+### Local Provisioner Templates
 
-#### About Local_provisioner_templates
+#### About Local Provisioner Templates
 
 #### Schema
 
@@ -85,4 +85,3 @@ curl -v -X DELETE \
     -H "X-Auth-Token: {AUTH_TOKEN}" \
     http://{SERVER}:8000/v2/accounts/{ACCOUNT_ID}/local_provisioner_templates/{TEMPLATE_ID}/image
 ```
-

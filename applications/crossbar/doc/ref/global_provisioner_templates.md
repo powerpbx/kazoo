@@ -1,6 +1,6 @@
-### Global_provisioner_templates
+### Global Provisioner Templates
 
-#### About Global_provisioner_templates
+#### About Global Provisioner Templates
 
 #### Schema
 
@@ -85,4 +85,3 @@ curl -v -X DELETE \
     -H "X-Auth-Token: {AUTH_TOKEN}" \
     http://{SERVER}:8000/v2/accounts/{ACCOUNT_ID}/global_provisioner_templates/{TEMPLATE_ID}/image
 ```
-

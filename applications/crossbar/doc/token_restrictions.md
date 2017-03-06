@@ -1,6 +1,6 @@
-### Token restrictions
+### Token Restrictions
 
-#### About token restrictions
+#### About Token Restrictions
 
 Token restrictions - set of rules saved in auth token document. These rules grant access to API URIs.
 
@@ -357,7 +357,6 @@ Key | Description | Type | Default | Required
 `restrictions./^\w+$/./^\w+$/./^\w+$/.[].rules` | Rules applied to endpoint parameters | `object` |   | `false`
 `restrictions./^\w+$/./^\w+$/./^\w+$/.[].rules./^[\w/#*]+$/` | verbs | `array(string('GET', 'PUT', 'POST', 'PATCH', 'DELETE', '_'))` |   | `false`
 `restrictions./^\w+$/./^\w+$/./^\w+$/.[].rules./^[\w/#*]+$/.[]` |   | `string` |   | `false`
-
 
 
 

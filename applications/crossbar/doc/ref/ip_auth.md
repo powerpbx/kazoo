@@ -1,6 +1,6 @@
-### Ip_auth
+### IP Authentication
 
-#### About Ip_auth
+#### About IP Authentication
 
 #### Schema
 
@@ -15,4 +15,3 @@ curl -v -X PUT \
     -H "X-Auth-Token: {AUTH_TOKEN}" \
     http://{SERVER}:8000/v2/ip_auth
 ```
-
