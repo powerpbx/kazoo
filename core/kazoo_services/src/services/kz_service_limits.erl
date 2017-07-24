@@ -50,5 +50,9 @@ reconcile(Services, JObj) ->
                         Quantity = kz_json:get_integer_value(<<"outbound_trunks">>, JObj, 0),
                         kz_services:update(<<"limits">>, <<"outbound_trunks">>, Quantity, S)
                 end
+               %%,fun(S) ->
+               %%         Quantity = kz_json:get_integer_value(<<"devices">>, JObj, 0),
+               %%         kz_services:update(<<"limits">>, <<"devices">>, Quantity, S)
+               %% end
                ],
     lists:foldl(fun(F, S) -> F(S) end, kz_services:reset_category(<<"limits">>, Services), Routines).

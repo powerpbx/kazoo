@@ -37,6 +37,11 @@
             "description": "The number of two-way, flat-rate trunks",
             "minimum": 0,
             "type": "integer"
+        },
+        "devices": {
+            "description": "The number of devices",
+            "minimum": 0,
+            "type": "integer"
         }
     },
     "type": "object"
