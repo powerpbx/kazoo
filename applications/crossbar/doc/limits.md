@@ -17,7 +17,7 @@ Key | Description | Type | Default | Required
 `outbound_trunks` | The number of outbound, flat-rate trunks | `integer()` |   | `false`
 `resource_consuming_calls` | A hard limit for the number of resource consuming calls | `integer()` |   | `false`
 `twoway_trunks` | The number of two-way, flat-rate trunks | `integer()` |   | `false`
-
+`devices` | The number of devices | `integer()` |   | `false`
 
 
 #### Fetch
@@ -37,7 +37,8 @@ curl -v -X GET \
         "inbound_trunks": 0,
         "id": "limits",
         "allow_prepay": true,
-        "outbound_trunks": 5
+        "outbound_trunks": 5,
+        "devices": 1
     },
     "status": "success"
 }
@@ -57,7 +58,8 @@ curl -v -X POST \
         "inbound_trunks": 11,
         "id": "limits",
         "allow_prepay": true,
-        "outbound_trunks": 5
+        "outbound_trunks": 5,
+        "devices": 1
     }}' \
     http://{SERVER}:8000/v1/accounts/{ACCOUNT_ID}/limits
 ```
@@ -69,7 +71,8 @@ curl -v -X POST \
         "inbound_trunks": 11,
         "id": "limits",
         "allow_prepay": true,
-        "outbound_trunks": 5
+        "outbound_trunks": 5,
+        "devices": 1
     },
     "status": "success",
 }
@@ -85,7 +88,8 @@ curl -v -X POST \
         "inbound_trunks": 11,
         "id": "limits",
         "allow_prepay": true,
-        "outbound_trunks": 5
+        "outbound_trunks": 5,
+        "devices": 1
     }}' \
     http://{SERVER}:8000/v2/accounts/{ACCOUNT_ID}/limits
 ```
@@ -137,7 +141,8 @@ curl -v -X POST \
         "inbound_trunks": 11,
         "id": "limits",
         "allow_prepay": true,
-        "outbound_trunks": 5
+        "outbound_trunks": 5,
+        "devices": 1
     },
     "status": "success",
 }
