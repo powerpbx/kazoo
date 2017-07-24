@@ -4,7 +4,7 @@
 
 #### Schema
 
-Limit an account's ability to place concurrent calls using flat rate trunks
+Limits devices and an account's ability to place concurrent calls using flat rate trunks.
 
 
 
