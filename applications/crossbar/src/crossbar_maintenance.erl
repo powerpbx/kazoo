@@ -45,6 +45,7 @@
         ,set_app_screenshots/2
         ]).
 
+
 -include("crossbar.hrl").
 -include_lib("kazoo/include/kz_system_config.hrl").
 
@@ -424,7 +425,7 @@ create_account_and_user(Account, User) ->
     Funs = [fun prechecks/1
            ,{fun validate_account/2, Account}
            ,fun create_account/1
-           ,{fun validate_user/2, User}
+           ,{fun validate_user/2, User}   
            ,fun create_user/1
            ],
     lists:foldl(fun create_fold/2
@@ -566,11 +567,19 @@ create_account(Context) ->
 %%
 %% @end
 %%--------------------------------------------------------------------
+
 -spec create_user(cb_context:context()) ->
+                        %%timer:sleep(5000);
                          {'ok', cb_context:context()} |
-                         {'error', kz_json:object()}.
+                       {'error', kz_json:object()}.
+
+
+%%delay 5.0;
+    %%io:format("Sleeping for 5 seconds '~s'~n", []).
 create_user(Context) ->
     Context1 = crossbar_bindings:fold(<<"v2_resource.execute.put.users">>, [Context]),
+    %%io:format("the cbmaint Context is '~s'~n", [kz_doc:id(cb_context:doc(Context))]),
+    %%io:format("the cbmaint Context1 is '~s'~n", [kz_doc:id(cb_context:doc(Context1))]),
     case cb_context:resp_status(Context1) of
         'success' ->
             io:format("created new account admin user '~s'~n", [kz_doc:id(cb_context:doc(Context1))]),

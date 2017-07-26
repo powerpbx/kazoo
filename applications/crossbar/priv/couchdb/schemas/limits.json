@@ -18,6 +18,11 @@
             "minimum": 0,
             "type": "integer"
         },
+        "devices": {
+            "description": "The number of devices",
+            "minimum": 0,
+            "type": "integer"
+        },
         "inbound_trunks": {
             "description": "The number of inbound, flat-rate trunks",
             "minimum": 0,
@@ -35,11 +40,6 @@
         },
         "twoway_trunks": {
             "description": "The number of two-way, flat-rate trunks",
-            "minimum": 0,
-            "type": "integer"
-        },
-        "devices": {
-            "description": "The number of devices",
             "minimum": 0,
             "type": "integer"
         }

@@ -48,6 +48,9 @@
 -spec create_user(cb_context:context()) -> cb_context:context().
 create_user(Context) ->
     Context1 = validate_request('undefined', cb_context:set_req_verb(Context, ?HTTP_PUT)),
+    io:format("the users Context is '~s'~n", [kz_doc:id(cb_context:doc(Context))]),
+    io:format("the users Context1 is '~s'~n", [kz_doc:id(cb_context:doc(Context1))]),
+
     case cb_context:resp_status(Context1) of
         'success' -> put(Context1);
         _Status -> Context1
@@ -310,9 +313,12 @@ post(Context, UserId, ?PHOTO) ->
 
 -spec put(cb_context:context()) -> cb_context:context().
 put(Context) ->
+    %%io:format("the users PUT Context is '~s'~n", [kz_doc:id(cb_context:doc(Context))]),
+    %%io:format("the users PUT Context1 is '~s'~n", [kz_doc:id(cb_context:doc(Context1))]),
     Callback =
         fun() ->
                 Context1 = crossbar_doc:save(Context),
+                io:format("the users PUT Context1 is '~s'~n", [kz_doc:id(cb_context:doc(Context1))]),
                 case cb_context:resp_status(Context1) of
                     'success' ->
                         _ = maybe_send_email(Context1),
