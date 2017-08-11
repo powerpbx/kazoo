@@ -18,6 +18,7 @@
 
 -export([get_first_defined/2, get_first_defined/3]).
 -export([get_binary_boolean/2, get_binary_boolean/3]).
+-export([get_boolean_value/2, get_boolean_value/3]).
 -export([get_integer_value/2, get_integer_value/3]).
 -export([get_number_value/2, get_number_value/3]).
 -export([get_float_value/2, get_float_value/3]).
@@ -39,6 +40,7 @@
         ,is_valid_json_object/1
         ,is_json_term/1
         ]).
+-export([is_defined/2]).
 
 -export([filter/2, filter/3
         ,filtermap/2
@@ -183,6 +185,10 @@ log_big_binary(<<Bin:500/binary, Rest/binary>>) ->
     log_big_binary(Rest);
 log_big_binary(Bin) ->
     lager:debug("bin: ~w", [Bin]).
+
+-spec is_defined(path(), object()) -> boolean().
+is_defined(Path, JObj) ->
+    undefined =/= get_value(Path, JObj).
 
 -spec is_empty(any()) -> boolean().
 is_empty(MaybeJObj) ->
@@ -677,6 +683,16 @@ get_atom_value(Key, JObj, Default) ->
     case get_value(Key, JObj) of
         'undefined' -> Default;
         Value -> safe_cast(Value, Default, fun kz_term:to_atom/1)
+    end.
+
+-spec get_boolean_value(path(), object() | objects()) -> api_atom().
+-spec get_boolean_value(path(), object() | objects(), Default) -> atom() | Default.
+get_boolean_value(Key, JObj) ->
+    get_boolean_value(Key, JObj, 'undefined').
+get_boolean_value(Key, JObj, Default) ->
+    case get_value(Key, JObj) of
+        'undefined' -> Default;
+        Value -> safe_cast(Value, Default, fun kz_term:to_boolean/1)
     end.
 
 -spec get_integer_value(path(), object() | objects()) -> api_integer().

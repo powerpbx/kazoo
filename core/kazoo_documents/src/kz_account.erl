@@ -16,11 +16,12 @@
         ,get_inherited_value/2
         ,get_inherited_value/3
 
-        ,name/1, name/2, set_name/2
-        ,realm/1, realm/2, set_realm/2
+        ,fetch_name/1, name/1, name/2, set_name/2
+        ,fetch_realm/1, realm/1, realm/2, set_realm/2
         ,language/1, language/2, set_language/2
         ,timezone/1, timezone/2, set_timezone/2, default_timezone/0
         ,parent_account_id/1
+        ,get_parent_account/1, get_parent_account_id/1
         ,tree/1, tree/2 ,set_tree/2
         ,notification_preference/1, set_notification_preference/2
         ,is_enabled/1, enable/1, disable/1
@@ -80,8 +81,6 @@
 -define(SENT_INITIAL_REGISTRATION, [<<"notifications">>, <<"first_occurrence">>, <<"sent_initial_registration">>]).
 -define(SENT_INITIAL_CALL, [<<"notifications">>, <<"first_occurrence">>, <<"sent_initial_call">>]).
 
--define(PVT_TYPE, <<"account">>).
-
 -type doc() :: kz_json:object().
 -export_type([doc/0]).
 
@@ -131,7 +130,7 @@ check_reseller(Account, ValueFun, Default) ->
 %%--------------------------------------------------------------------
 -spec new() -> doc().
 new() ->
-    kz_doc:set_type(kz_json:new(), ?PVT_TYPE).
+    kz_doc:set_type(kz_json:new(), type()).
 
 %%--------------------------------------------------------------------
 %% @public
@@ -139,7 +138,7 @@ new() ->
 %% @end
 %%--------------------------------------------------------------------
 -spec type() -> ne_binary().
-type() -> ?PVT_TYPE.
+type() -> <<"account">>.
 
 %%--------------------------------------------------------------------
 %% @public
@@ -178,7 +177,16 @@ fetch(AccountId, 'accounts') ->
 %% @doc
 %% @end
 %%--------------------------------------------------------------------
--spec name(doc()) -> api_binary().
+-spec fetch_name(ne_binary()) -> api_ne_binary().
+fetch_name(Account) ->
+    case fetch(Account) of
+        {ok, JObj} -> name(JObj);
+        {error, _R} ->
+            lager:error("error opening account doc ~p", [Account]),
+            undefined
+    end.
+
+-spec name(doc()) -> api_ne_binary().
 -spec name(doc(), Default) -> ne_binary() | Default.
 name(JObj) ->
     name(JObj, 'undefined').
@@ -199,7 +207,21 @@ set_name(JObj, Name) ->
 %% @doc
 %% @end
 %%--------------------------------------------------------------------
--spec realm(doc()) -> api_binary().
+-spec fetch_realm(ne_binary()) -> api_ne_binary().
+fetch_realm(Account) ->
+    case fetch(Account) of
+        {ok, JObj} -> realm(JObj);
+        {error, _R} ->
+            lager:error("error opening account doc ~p", [Account]),
+            undefined
+    end.
+
+%%--------------------------------------------------------------------
+%% @public
+%% @doc
+%% @end
+%%--------------------------------------------------------------------
+-spec realm(doc()) -> api_ne_binary().
 -spec realm(doc(), Default) -> ne_binary() | Default.
 realm(JObj) ->
     realm(JObj, 'undefined').
@@ -459,6 +481,33 @@ parent_account_id(JObj) ->
     case tree(JObj) of
         [] -> 'undefined';
         Ancestors -> lists:last(Ancestors)
+    end.
+
+%%--------------------------------------------------------------------
+%% @public
+%% @doc
+%% @end
+%%--------------------------------------------------------------------
+-spec get_parent_account(ne_binary()) -> {'ok', doc()} | {'error', any()}.
+get_parent_account(AccountId) ->
+    case get_parent_account_id(AccountId) of
+        'undefined' -> {'error', 'not_found'};
+        ParentId ->
+            fetch(ParentId)
+    end.
+
+%%--------------------------------------------------------------------
+%% @public
+%% @doc
+%% @end
+%%--------------------------------------------------------------------
+-spec get_parent_account_id(ne_binary()) -> api_binary().
+get_parent_account_id(AccountId) ->
+    case fetch(AccountId) of
+        {'ok', JObj} -> parent_account_id(JObj);
+        {'error', _R} ->
+            lager:debug("failed to open account's ~s parent: ~p", [AccountId, _R]),
+            'undefined'
     end.
 
 %%--------------------------------------------------------------------

@@ -86,6 +86,69 @@
             },
             "type": "object"
         },
+        "account_config.crossbar.auth": {
+            "description": "Schema for crossbar.auth account_config",
+            "properties": {
+                "auth_modules": {
+                    "additionalProperties": false,
+                    "default": {
+                        "cb_api_auth": {
+                            "enabled": true,
+                            "log_failed_attempts": true,
+                            "log_successful_attempts": true,
+                            "token_auth_expiry_s": 3600
+                        },
+                        "cb_auth": {
+                            "enabled": true,
+                            "log_failed_attempts": true,
+                            "log_successful_attempts": true,
+                            "token_auth_expiry_s": 3600
+                        },
+                        "cb_ip_auth": {
+                            "enabled": true,
+                            "log_failed_attempts": true,
+                            "log_successful_attempts": true,
+                            "token_auth_expiry_s": 3600
+                        },
+                        "cb_ubiquiti_auth": {
+                            "enabled": true,
+                            "log_failed_attempts": true,
+                            "log_successful_attempts": true,
+                            "token_auth_expiry_s": 3600
+                        },
+                        "cb_user_auth": {
+                            "enabled": true,
+                            "log_failed_attempts": true,
+                            "log_successful_attempts": true,
+                            "token_auth_expiry_s": 3600
+                        }
+                    },
+                    "description": "Default crossbar authentication modules configuration",
+                    "properties": {
+                        "cb_api_auth": {
+                            "$ref": "#/definitions/auth_module_config"
+                        },
+                        "cb_auth": {
+                            "$ref": "#/definitions/auth_module_config"
+                        },
+                        "cb_ip_auth": {
+                            "$ref": "#/definitions/auth_module_config"
+                        },
+                        "cb_ubiquiti_auth": {
+                            "$ref": "#/definitions/auth_module_config"
+                        },
+                        "cb_user_auth": {
+                            "$ref": "#/definitions/auth_module_config"
+                        }
+                    },
+                    "type": "object"
+                }
+            },
+            "required": [
+                "auth_modules"
+            ],
+            "type": "object"
+        },
         "account_config.crossbar.sms": {
             "description": "Schema for crossbar.sms account_config",
             "properties": {
@@ -680,11 +743,12 @@
             ],
             "type": "object"
         },
-        "auth_config": {
-            "description": "crossbar authentication module configuration",
+        "auth_module_config": {
+            "description": "crossbar authenticator module configuration",
             "properties": {
                 "enabled": {
-                    "description": "whether or not this authentication module is enabled",
+                    "default": true,
+                    "description": "whether or not this authenticator module is enabled",
                     "type": "boolean"
                 },
                 "log_failed_attempts": {
@@ -693,19 +757,24 @@
                     "type": "boolean"
                 },
                 "log_successful_attempts": {
-                    "default": false,
+                    "default": true,
                     "description": "should log successful logging attempts",
                     "type": "boolean"
                 },
                 "multi_factor": {
-                    "additionalProperties": true,
+                    "additionalProperties": false,
                     "description": "control multi factor authentications for this module",
                     "properties": {
+                        "account_id": {
+                            "description": "ID of the account that contains the multi factor configuration",
+                            "type": "string"
+                        },
                         "configuration_id": {
-                            "description": "document ID contains the multi factor configuration",
+                            "description": "document ID that contains the multi factor configuration",
                             "type": "string"
                         },
                         "enabled": {
+                            "default": false,
                             "description": "turn on/off multi factor authentications for this module",
                             "type": "boolean"
                         },
@@ -715,47 +784,14 @@
                             "type": "boolean"
                         }
                     },
-                    "required": [
-                        "enabled"
-                    ],
                     "type": "object"
                 },
-                "token_auth_expiry": {
+                "token_auth_expiry_s": {
+                    "default": 3600,
                     "description": "expiration period of the JWT token (seconds)",
                     "type": "integer"
                 }
             },
-            "required": [
-                "enabled"
-            ],
-            "type": "object"
-        },
-        "auth_config_account": {
-            "description": "crossbar account authentication modules configuration",
-            "properties": {
-                "auth_modules": {
-                    "additionalProperties": true,
-                    "description": "crossbar authentication modules configuration",
-                    "properties": {
-                        "cb_api_auth": {
-                            "$ref": "#/definitions/auth_config"
-                        },
-                        "cb_ip_auth": {
-                            "$ref": "#/definitions/auth_config"
-                        },
-                        "cb_ubiquiti_auth": {
-                            "$ref": "#/definitions/auth_config"
-                        },
-                        "cb_user_auth": {
-                            "$ref": "#/definitions/auth_config"
-                        }
-                    },
-                    "type": "object"
-                }
-            },
-            "required": [
-                "auth_modules"
-            ],
             "type": "object"
         },
         "auth_provider": {
@@ -1603,6 +1639,17 @@
             },
             "type": "object"
         },
+        "callflows.flush_dtmf": {
+            "description": "Validator for the flush_dtmf callflow's data object",
+            "properties": {
+                "collection_name": {
+                    "default": "default",
+                    "description": "Flush collected DTMF in a named key",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
         "callflows.group": {
             "description": "Validator for the group callflow's data object",
             "properties": {
@@ -1953,7 +2000,24 @@
                     "type": "string"
                 },
                 "custom_sip_headers": {
-                    "description": "Custom SIP Headers to include on the outgoing INVITE",
+                    "anyOf": [
+                        {
+                            "$ref": "custom_sip_headers"
+                        },
+                        {
+                            "properties": {
+                                "in": {
+                                    "$ref": "custom_sip_headers",
+                                    "description": "Custom SIP Headers to be applied to calls inbound to Kazoo from the endpoint"
+                                },
+                                "out": {
+                                    "$ref": "custom_sip_headers",
+                                    "description": "Custom SIP Headers to be applied to calls outbound from Kazoo to the endpoint"
+                                }
+                            }
+                        }
+                    ],
+                    "description": "A property list of SIP headers",
                     "type": "object"
                 },
                 "do_not_normalize": {
@@ -2389,7 +2453,24 @@
                     "type": "string"
                 },
                 "custom_sip_headers": {
-                    "description": "Custom SIP Headers to include on the outgoing INVITE",
+                    "anyOf": [
+                        {
+                            "$ref": "custom_sip_headers"
+                        },
+                        {
+                            "properties": {
+                                "in": {
+                                    "$ref": "custom_sip_headers",
+                                    "description": "Custom SIP Headers to be applied to calls inbound to Kazoo from the endpoint"
+                                },
+                                "out": {
+                                    "$ref": "custom_sip_headers",
+                                    "description": "Custom SIP Headers to be applied to calls outbound from Kazoo to the endpoint"
+                                }
+                            }
+                        }
+                    ],
+                    "description": "A property list of SIP headers",
                     "type": "object"
                 },
                 "do_not_normalize": {
@@ -2911,6 +2992,10 @@
                     "description": "CID to authorize",
                     "type": "string"
                 },
+                "comment": {
+                    "description": "Some notes regarding what this pin/cid for",
+                    "type": "string"
+                },
                 "max_concurent_calls_per_user": {
                     "description": "Calls per user limit. Counts all user's legs and compares to max_concurent_calls_per_user multiplied by 2",
                     "type": "integer"
@@ -2982,10 +3067,24 @@
                     "type": "object"
                 },
                 "custom_sip_headers": {
-                    "additionalProperties": {
-                        "type": "string"
-                    },
-                    "description": "A property list of SIP headers beging with the prefix 'X-'",
+                    "anyOf": [
+                        {
+                            "$ref": "custom_sip_headers"
+                        },
+                        {
+                            "properties": {
+                                "in": {
+                                    "$ref": "custom_sip_headers",
+                                    "description": "Custom SIP Headers to be applied to calls inbound to Kazoo from the endpoint"
+                                },
+                                "out": {
+                                    "$ref": "custom_sip_headers",
+                                    "description": "Custom SIP Headers to be applied to calls outbound from Kazoo to the endpoint"
+                                }
+                            }
+                        }
+                    ],
+                    "description": "A property list of SIP headers",
                     "type": "object"
                 },
                 "digits_dialed": {
@@ -3536,6 +3635,10 @@
                 }
             }
         },
+        "custom_sip_headers": {
+            "description": "Custom SIP headers applied to an INVITE",
+            "type": "object"
+        },
         "device_rate_limits": {
             "description": "describe limits for SIP requests",
             "properties": {
@@ -3810,6 +3913,10 @@
                             "description": "The progress timeout to apply to the device (seconds)",
                             "type": "integer"
                         },
+                        "rtcp_mux": {
+                            "description": "RTCP protocol messages mixed with RTP data",
+                            "type": "boolean"
+                        },
                         "video": {
                             "default": {},
                             "description": "The video media parameters",
@@ -3939,10 +4046,24 @@
                     "description": "SIP Parameters",
                     "properties": {
                         "custom_sip_headers": {
-                            "additionalProperties": {
-                                "type": "string"
-                            },
-                            "description": "A property list of SIP headers beging with the prefix 'X-'",
+                            "anyOf": [
+                                {
+                                    "$ref": "custom_sip_headers"
+                                },
+                                {
+                                    "properties": {
+                                        "in": {
+                                            "$ref": "custom_sip_headers",
+                                            "description": "Custom SIP Headers to be applied to calls inbound to Kazoo from the endpoint"
+                                        },
+                                        "out": {
+                                            "$ref": "custom_sip_headers",
+                                            "description": "Custom SIP Headers to be applied to calls outbound from Kazoo to the endpoint"
+                                        }
+                                    }
+                                }
+                            ],
+                            "description": "A property list of SIP headers",
                             "type": "object"
                         },
                         "expire_seconds": {
@@ -14318,6 +14439,9 @@
                 "Fax-Notifications": {
                     "type": "string"
                 },
+                "Fax-Result-Code": {
+                    "type": "string"
+                },
                 "Fax-Timestamp": {
                     "type": "string"
                 },
@@ -23209,7 +23333,24 @@
                                 "uniqueItems": true
                             },
                             "custom_sip_headers": {
-                                "default": {},
+                                "anyOf": [
+                                    {
+                                        "$ref": "custom_sip_headers"
+                                    },
+                                    {
+                                        "properties": {
+                                            "in": {
+                                                "$ref": "custom_sip_headers",
+                                                "description": "Custom SIP Headers to be applied to calls inbound to Kazoo from the endpoint"
+                                            },
+                                            "out": {
+                                                "$ref": "custom_sip_headers",
+                                                "description": "Custom SIP Headers to be applied to calls outbound from Kazoo to the endpoint"
+                                            }
+                                        }
+                                    }
+                                ],
+                                "description": "A property list of SIP headers",
                                 "type": "object"
                             },
                             "custom_sip_interface": {
@@ -24845,11 +24986,6 @@
                     "description": "crossbar ssl workers",
                     "type": "integer"
                 },
-                "token_auth_expiry": {
-                    "default": 3600,
-                    "description": "crossbar token auth expiry",
-                    "type": "integer"
-                },
                 "token_costs": {
                     "default": 1,
                     "description": "crossbar token costs",
@@ -24954,14 +25090,66 @@
             "description": "Schema for crossbar.auth system_config",
             "properties": {
                 "auth_modules": {
-                    "default": {},
+                    "additionalProperties": false,
+                    "default": {
+                        "cb_api_auth": {
+                            "enabled": true,
+                            "log_failed_attempts": true,
+                            "log_successful_attempts": true,
+                            "token_auth_expiry_s": 3600
+                        },
+                        "cb_auth": {
+                            "enabled": true,
+                            "log_failed_attempts": true,
+                            "log_successful_attempts": true,
+                            "token_auth_expiry_s": 3600
+                        },
+                        "cb_ip_auth": {
+                            "enabled": true,
+                            "log_failed_attempts": true,
+                            "log_successful_attempts": true,
+                            "token_auth_expiry_s": 3600
+                        },
+                        "cb_ubiquiti_auth": {
+                            "enabled": true,
+                            "log_failed_attempts": true,
+                            "log_successful_attempts": true,
+                            "token_auth_expiry_s": 3600
+                        },
+                        "cb_user_auth": {
+                            "enabled": true,
+                            "log_failed_attempts": true,
+                            "log_successful_attempts": true,
+                            "token_auth_expiry_s": 3600
+                        }
+                    },
                     "description": "Default crossbar authentication modules configuration",
+                    "properties": {
+                        "cb_api_auth": {
+                            "$ref": "#/definitions/auth_module_config"
+                        },
+                        "cb_auth": {
+                            "$ref": "#/definitions/auth_module_config"
+                        },
+                        "cb_ip_auth": {
+                            "$ref": "#/definitions/auth_module_config"
+                        },
+                        "cb_ubiquiti_auth": {
+                            "$ref": "#/definitions/auth_module_config"
+                        },
+                        "cb_user_auth": {
+                            "$ref": "#/definitions/auth_module_config"
+                        }
+                    },
                     "type": "object"
                 },
-                "available_auth_modules": {
+                "available_auth_methods": {
                     "default": [
                         "cb_user_auth",
-                        "cb_api_auth"
+                        "cb_api_auth",
+                        "cb_auth",
+                        "cb_ip_auth",
+                        "cb_ubiquiti_auth"
                     ],
                     "description": "List of crossbar auth configurable modules",
                     "items": {
@@ -24992,6 +25180,11 @@
                     "default": false,
                     "description": "Should log successful login attempts",
                     "type": "boolean"
+                },
+                "token_auth_expiry_s": {
+                    "default": 3600,
+                    "description": "crossbar token auth expiry in seconds",
+                    "type": "integer"
                 }
             },
             "type": "object"
@@ -28048,7 +28241,11 @@
                     "type": "string"
                 },
                 "modules": {
-                    "description": "services modules"
+                    "description": "services modules",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
                 },
                 "reseller_bookkeeper_lookup": {
                     "default": false,
@@ -28058,6 +28255,7 @@
                 "scan_rate": {
                     "default": 20000,
                     "description": "services scan rate",
+                    "minimum": 0,
                     "type": "integer"
                 },
                 "should_save_master_audit_logs": {
@@ -28073,6 +28271,7 @@
                 "sync_buffer_period": {
                     "default": 600,
                     "description": "services sync buffer period",
+                    "minimum": 0,
                     "type": "integer"
                 },
                 "sync_services": {
@@ -28622,6 +28821,12 @@
                 "max_retries": {
                     "default": 3,
                     "description": "Default max retries to re-publish",
+                    "type": "integer"
+                },
+                "publish_timeout_ms": {
+                    "default": 10000,
+                    "description": "Timeout in milliseconds for publishing notification",
+                    "minimum": 1,
                     "type": "integer"
                 },
                 "reschedule_rules": {
@@ -38245,21 +38450,6 @@
                         "description": "request succeeded"
                     }
                 }
-            },
-            "put": {
-                "parameters": [
-                    {
-                        "$ref": "#/parameters/auth_token_header"
-                    },
-                    {
-                        "$ref": "#/parameters/ACCOUNT_ID"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "request succeeded"
-                    }
-                }
             }
         },
         "/accounts/{ACCOUNT_ID}/security/attempts": {
@@ -38287,98 +38477,6 @@
                     },
                     {
                         "$ref": "#/parameters/ATTEMPT_ID"
-                    },
-                    {
-                        "$ref": "#/parameters/ACCOUNT_ID"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "request succeeded"
-                    }
-                }
-            }
-        },
-        "/accounts/{ACCOUNT_ID}/security/{CONFIG_ID}": {
-            "delete": {
-                "parameters": [
-                    {
-                        "$ref": "#/parameters/auth_token_header"
-                    },
-                    {
-                        "$ref": "#/parameters/CONFIG_ID"
-                    },
-                    {
-                        "$ref": "#/parameters/ACCOUNT_ID"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "request succeeded"
-                    }
-                }
-            },
-            "get": {
-                "parameters": [
-                    {
-                        "$ref": "#/parameters/auth_token_header"
-                    },
-                    {
-                        "$ref": "#/parameters/CONFIG_ID"
-                    },
-                    {
-                        "$ref": "#/parameters/ACCOUNT_ID"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "request succeeded"
-                    }
-                }
-            },
-            "patch": {
-                "parameters": [
-                    {
-                        "$ref": "#/parameters/auth_token_header"
-                    },
-                    {
-                        "$ref": "#/parameters/CONFIG_ID"
-                    },
-                    {
-                        "$ref": "#/parameters/ACCOUNT_ID"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "request succeeded"
-                    }
-                }
-            },
-            "post": {
-                "parameters": [
-                    {
-                        "$ref": "#/parameters/auth_token_header"
-                    },
-                    {
-                        "$ref": "#/parameters/CONFIG_ID"
-                    },
-                    {
-                        "$ref": "#/parameters/ACCOUNT_ID"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "request succeeded"
-                    }
-                }
-            },
-            "put": {
-                "parameters": [
-                    {
-                        "$ref": "#/parameters/auth_token_header"
-                    },
-                    {
-                        "$ref": "#/parameters/CONFIG_ID"
                     },
                     {
                         "$ref": "#/parameters/ACCOUNT_ID"

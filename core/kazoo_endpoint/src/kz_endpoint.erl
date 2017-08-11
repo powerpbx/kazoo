@@ -1469,6 +1469,7 @@ generate_ccvs(Endpoint, Call, CallFwd) ->
               ,fun maybe_set_account_id/1
               ,fun maybe_set_call_forward/1
               ,fun maybe_set_confirm_properties/1
+              ,fun maybe_rtcp_mux/1
               ,fun maybe_enable_fax/1
               ,fun maybe_enforce_security/1
               ,fun maybe_set_encryption_flags/1
@@ -1551,6 +1552,13 @@ maybe_set_call_forward({Endpoint, Call, CallFwd, CCVs}) ->
                        ,CCVs
                        )
     }.
+
+-spec maybe_rtcp_mux(ccv_acc()) -> ccv_acc().
+maybe_rtcp_mux({Endpoint, Call, CallFwd, CCVs} = Acc) ->
+    case kz_json:get_boolean_value([<<"media">>, <<"rtcp_mux">>], Endpoint) of
+        'undefined' -> Acc;
+        RTCP_MUX -> {Endpoint, Call, CallFwd, kz_json:set_value(<<"RTCP-MUX">>, RTCP_MUX, CCVs)}
+    end.
 
 -spec bowout_settings(boolean()) -> kz_proplist().
 bowout_settings('true') ->
@@ -1825,15 +1833,12 @@ get_sip_realm(SIPJObj, AccountId) ->
 -spec get_sip_realm(kz_json:object(), ne_binary(), Default) -> Default | ne_binary().
 get_sip_realm(SIPJObj, AccountId, Default) ->
     case kz_device:sip_realm(SIPJObj) of
-        'undefined' -> get_account_realm(AccountId, Default);
+        'undefined' ->
+            case kz_account:fetch_realm(AccountId) of
+                undefined -> Default;
+                Realm -> Realm
+            end;
         Realm -> Realm
-    end.
-
--spec get_account_realm(ne_binary(), api_binary()) -> api_binary().
-get_account_realm(AccountId, Default) ->
-    case kz_util:get_account_realm(AccountId) of
-        'undefined' -> Default;
-        Else -> Else
     end.
 
 %%--------------------------------------------------------------------

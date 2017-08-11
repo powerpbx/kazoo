@@ -675,12 +675,12 @@ gateway_to_endpoint(DestinationNumber
     IsEmergency = gateway_emergency_resource(Gateway),
     {CIDName, CIDNumber} = gateway_cid(OffnetJObj, IsEmergency, PrivacyMode),
 
-    CCVs = props:filter_undefined(
-             [{<<"Emergency-Resource">>, IsEmergency}
-             ,{<<"Matched-Number">>, DestinationNumber}
-             ,{<<"RTCP-MUX">>, RTCP_MUX}
-              | gateway_from_uri_settings(Gateway)
-             ]),
+    CCVs = [{<<"Emergency-Resource">>, IsEmergency}
+           ,{<<"Matched-Number">>, DestinationNumber}
+           ,{<<"Resource-Type">>, <<"offnet-termination">>}
+           ,{<<"RTCP-MUX">>, RTCP_MUX}
+            | gateway_from_uri_settings(Gateway)
+           ],
     kz_json:from_list(
       props:filter_empty(
         [{<<"Route">>, gateway_dialstring(Gateway, DestinationNumber)}
@@ -1128,7 +1128,7 @@ gateway_from_jobj(JObj, #resrc{is_emergency=IsEmergency
             ,realm = kz_json:get_value(<<"realm">>, JObj)
             ,username = kz_json:get_value(<<"username">>, JObj)
             ,password = kz_json:get_value(<<"password">>, JObj)
-            ,sip_headers = kz_json:get_ne_value(<<"custom_sip_headers">>, JObj)
+            ,sip_headers = kz_custom_sip_headers:outbound(kz_json:get_json_value(<<"custom_sip_headers">>, JObj, kz_json:new()))
             ,sip_interface = kz_json:get_ne_value(<<"custom_sip_interface">>, JObj)
             ,invite_format = kz_json:get_value(<<"invite_format">>, JObj, <<"route">>)
             ,format_from_uri = kz_json:is_true(<<"format_from_uri">>, JObj, FormatFrom)

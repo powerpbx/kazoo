@@ -482,6 +482,8 @@ headers(<<"port_request_admin">>) ->
     kapi_notifications:headers(<<"port_request">>);
 headers(<<"fax_inbound_error_to_email_filtered">>) ->
     kapi_notifications:headers(<<"fax_inbound_error_to_email">>);
+headers(<<"fax_outbound_smtp_error_to_email">>) ->
+    kapi_notifications:headers(<<"fax_outbound_smtp_error">>);
 headers(<<"transaction_failed">>) ->
     kapi_notifications:headers(<<"transaction">>);
 headers(Id) ->
@@ -492,6 +494,8 @@ maybe_add_extra_data(<<"fax_inbound_error_to_email">>, API) ->
     props:set_value(<<"Fax-Result-Code">>, <<"500">>, API);
 maybe_add_extra_data(<<"fax_inbound_error_to_email_filtered">>, API) ->
     props:set_value(<<"Fax-Result-Code">>, <<"49">>, API);
+maybe_add_extra_data(<<"fax_outbound_smtp_error_to_email">>, API) ->
+    props:set_value(<<"Errors">>, [<<"Not Deliverable">>], API);
 maybe_add_extra_data(<<"transaction">>, API) ->
     props:set_value(<<"Success">>, 'true', API);
 maybe_add_extra_data(<<"transaction_failed">>, API) ->
@@ -517,6 +521,8 @@ publish_fun(<<"fax_inbound_to_email">>) ->
     fun kapi_notifications:publish_fax_inbound/1;
 publish_fun(<<"fax_outbound_error_to_email">>) ->
     fun kapi_notifications:publish_fax_outbound_error/1;
+publish_fun(<<"fax_outbound_smtp_error_to_email">>) ->
+    fun kapi_notifications:publish_fax_outbound_smtp_error/1;
 publish_fun(<<"fax_outbound_to_email">>) ->
     fun kapi_notifications:publish_fax_outbound/1;
 publish_fun(<<"first_occurrence">>) ->
@@ -601,7 +607,7 @@ maybe_delete(Context, Id, [?MEDIA_VALUE(Type, SubType, _, _, _)]) ->
 
 -spec delete_doc(cb_context:context(), ne_binary()) -> cb_context:context().
 delete_doc(Context, Id) ->
-    Context1 = crossbar_doc:delete(Context, 'permanent'),
+    Context1 = crossbar_doc:delete(Context, ?HARD_DELETE),
     case cb_context:resp_status(Context1) of
         'success' ->
             kz_datamgr:flush_cache_doc(cb_context:account_db(Context), Id),

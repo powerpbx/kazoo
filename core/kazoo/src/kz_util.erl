@@ -21,7 +21,6 @@
         ]).
 -export([is_in_account_hierarchy/2, is_in_account_hierarchy/3]).
 -export([is_system_admin/1]).
--export([get_account_realm/1, get_account_realm/2]).
 -export([is_account_enabled/1, is_account_expired/1]).
 -export([maybe_disable_account/1
         ,disable_account/1
@@ -346,6 +345,7 @@ format_account_id(Account, Year, Month) when is_integer(Year),
 -spec format_account_mod_id(api_binary(), gregorian_seconds() | kz_now()) -> api_binary().
 -spec format_account_mod_id(api_binary(), kz_year() | ne_binary(), kz_month() | ne_binary()) ->
                                    api_binary().
+
 format_account_mod_id(Account) ->
     format_account_mod_id(Account, os:timestamp()).
 
@@ -407,13 +407,16 @@ normalize_account_name(AccountName) ->
           is_alphanumeric(Char)
     >>.
 
-is_alphanumeric(Char) ->
-    (Char >= $a
-     andalso Char =< $z
-    )
-        orelse (Char >= $0
-                andalso Char =< $9
-               ).
+is_alphanumeric(Char)
+  when Char >= $a,
+       Char =< $z ->
+    true;
+is_alphanumeric(Char)
+  when Char >= $0,
+       Char =< $9 ->
+    true;
+is_alphanumeric(_) ->
+    false.
 
 %%--------------------------------------------------------------------
 %% @public
@@ -585,26 +588,6 @@ account_update(Account, UpdateFun) ->
         {'error', _R}=E -> E;
         {'ok', AccountJObj} ->
             account_update(UpdateFun(AccountJObj))
-    end.
-
-%%--------------------------------------------------------------------
-%% @public
-%% @doc
-%% Retrieves the account realm
-%% @end
-%%--------------------------------------------------------------------
--spec get_account_realm(api_binary()) -> api_binary().
--spec get_account_realm(api_binary(), ne_binary()) -> api_binary().
-get_account_realm(Account) ->
-    get_account_realm(format_account_db(Account), format_account_id(Account)).
-
-get_account_realm('undefined', _) -> 'undefined';
-get_account_realm(Db, AccountId) ->
-    case kz_datamgr:open_cache_doc(Db, AccountId) of
-        {'ok', JObj} -> kz_account:realm(JObj);
-        {'error', _R} ->
-            lager:debug("error while looking up account realm in ~s: ~p", [AccountId, _R]),
-            'undefined'
     end.
 
 %%--------------------------------------------------------------------

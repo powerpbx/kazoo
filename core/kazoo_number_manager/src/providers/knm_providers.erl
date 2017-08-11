@@ -111,11 +111,9 @@ e911_caller_name(_Number, 'undefined') -> ?E911_NAME_DEFAULT.
 e911_caller_name(_Number, ?NE_BINARY=Name) -> Name;
 e911_caller_name(Number, 'undefined') ->
     AccountId = knm_phone_number:assigned_to(knm_number:phone_number(Number)),
-    case kz_account:fetch(AccountId) of
-        {'ok', JObj} -> kz_account:name(JObj, ?E911_NAME_DEFAULT);
-        {'error', _Error} ->
-            lager:error("error opening account doc ~p", [AccountId]),
-            ?E911_NAME_DEFAULT
+    case kz_account:fetch_name(AccountId) of
+        undefined -> ?E911_NAME_DEFAULT;
+        Name -> Name
     end.
 -endif.
 
@@ -208,10 +206,13 @@ reseller_allowed_features(#feature_parameters{assigned_to = AccountId}=_Params) 
 
 -spec system_allowed_features() -> ne_binaries().
 system_allowed_features() ->
-    Features = case ?SYSTEM_PROVIDERS of
-                   undefined -> ?FEATURES_ALLOWED_SYSTEM(?DEFAULT_FEATURES_ALLOWED_SYSTEM);
-                   Providers -> ?FEATURES_ALLOWED_SYSTEM(Providers)
-               end,
+    Features =
+        lists:usort(
+          case ?SYSTEM_PROVIDERS of
+              undefined -> ?FEATURES_ALLOWED_SYSTEM(?DEFAULT_FEATURES_ALLOWED_SYSTEM);
+              Providers -> ?FEATURES_ALLOWED_SYSTEM(Providers)
+          end
+         ),
     ?LOG_DEBUG("allowed features from system config: ~s", [?PP(Features)]),
     Features.
 

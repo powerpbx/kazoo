@@ -232,9 +232,9 @@ local_originate_caller_id(JObj) ->
 
 -spec get_account_realm(ne_binary()) -> ne_binary().
 get_account_realm(AccountId) ->
-    case kz_account:fetch(AccountId) of
-        {'ok', JObj} -> kz_account:realm(JObj, AccountId);
-        _ -> AccountId
+    case kz_account:fetch_realm(AccountId) of
+        undefined -> AccountId;
+        Realm -> Realm
     end.
 
 -spec create_loopback_endpoint(knm_number_options:extra_options(), kz_json:object()) -> kz_json:object().
@@ -248,8 +248,10 @@ create_loopback_endpoint(Props, JObj) ->
              [{<<?CHANNEL_LOOPBACK_HEADER_PREFIX, "Inception">>, <<Number/binary, "@", Realm/binary>>}
              ,{<<?CHANNEL_LOOPBACK_HEADER_PREFIX, "Account-ID">>, AccountId}
              ,{<<?CHANNEL_LOOPBACK_HEADER_PREFIX, "Retain-CID">>, "true"}
+             ,{<<?CHANNEL_LOOPBACK_HEADER_PREFIX, "Resource-Type">>, <<"onnet-origination">>}
              ,{<<"Resource-ID">>, AccountId}
              ,{<<"Loopback-Request-URI">>, <<Number/binary, "@", Realm/binary>>}
+             ,{<<"Resource-Type">>, <<"onnet-termination">>}
              ]),
     kz_json:from_list(
       [{<<"Invite-Format">>, <<"loopback">>}
