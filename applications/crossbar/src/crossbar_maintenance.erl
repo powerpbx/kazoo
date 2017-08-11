@@ -427,7 +427,7 @@ create_account_and_user(Account, User) ->
     Funs = [fun prechecks/1
            ,{fun validate_account/2, Account}
            ,fun create_account/1
-           ,{fun validate_user/2, User}   
+           ,{fun validate_user/2, User}
            ,fun create_user/1
            ,fun maybe_promote_account/1
            ],
